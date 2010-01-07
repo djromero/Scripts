@@ -6,7 +6,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm, mm
 
 """
-Generate a Montessori like pattern for calligraphy exercises.
+Generate ruled paper PDF in A4 size. For kids handwriting exercises.
 7th Jan 2010 by Julián Romero <julian@wuonm.com>
 """
 
