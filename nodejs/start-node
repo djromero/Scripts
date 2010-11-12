@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# Relaunch a nodejs server each time it's autokilled (or just killed).
+# 
+# If script name contains 'dev' it's considered development, if contains 'prod' production. 
+# Log file and delay will adjusted based on this.
+#
+
+if [ $# -lt 1 ]; then
+    echo Usage: $0 '<server.js>'
+    exit 1
+fi
+
+if [ "$APP" == "" ]; then
+    APP=`dirname $0`/..
+fi
+
+NODE=`which node`
+LOG=$APP/log/node.log
+DELAY_OK=5
+DELAY_ERROR=10
+
+declare -i exitcode
+mkdir -p `dirname $LOG`
+
+echo `date +"%Y/%m/%d %H:%M:%S"` Start >> $LOG
+script=$1 && shift
+while ( true ); do
+  case $script in 
+    *dev*)
+        LOG=$APP/log/node-dev.log
+        DELAY_OK=1
+        DELAY_ERROR=3
+        $NODE "$script" | tee $LOG 2>&1
+        ;;
+    *prod*)
+        $NODE "$script" 2>&1 >> $LOG
+        ;;
+  esac
+  exitcode=$?
+  if [ $exitcode -ne 0 ]; then 
+      echo `date +"%Y/%m/%d %H:%M:%S"` Crash '('$exitcode')' >> $LOG
+      sleep $DELAY_ERROR
+  else 
+      echo `date +"%Y/%m/%d %H:%M:%S"` Clean exit >> $LOG
+      sleep $DELAY_OK
+  fi
+done
